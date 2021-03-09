@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace TheCocktail\Bundle\MegaMenuBundle\Builder;
 
 use Sulu\Component\DocumentManager\Exception\DocumentNotFoundException;
+use Sulu\Component\Webspace\Analyzer\RequestAnalyzerInterface;
+use Sulu\Component\Webspace\Manager\WebspaceManagerInterface;
 use TheCocktail\Bundle\MegaMenuBundle\Entity\MenuItem;
 use TheCocktail\Bundle\MegaMenuBundle\Exception\NotPublishedException;
 use TheCocktail\Bundle\MegaMenuBundle\Repository\MenuItemRepository;
@@ -33,22 +35,31 @@ class MenuBuilder
     private MenuItemRepository $repository;
     private ContentMapperInterface $contentMapper;
     private TagAwareCacheInterface $cache;
+    private WebspaceManagerInterface $webspaceManager;
+    private RequestAnalyzerInterface $requestAnalyzer;
     private ?SymfonyResponseTagger $responseTagger;
 
     /**
      * @var string[] $tags
      */
     private array $tags;
+    private string $environment;
 
     public function __construct(
         MenuItemRepository $repository,
         ContentMapperInterface $contentMapper,
         TagAwareCacheInterface $cache,
+        WebspaceManagerInterface $webspaceManager,
+        RequestAnalyzerInterface $requestAnalyzer,
+        string $environment,
         ?SymfonyResponseTagger $responseTagger
     ) {
         $this->repository = $repository;
         $this->contentMapper = $contentMapper;
         $this->cache = $cache;
+        $this->webspaceManager = $webspaceManager;
+        $this->requestAnalyzer = $requestAnalyzer;
+        $this->environment = $environment;
         $this->responseTagger = $responseTagger;
     }
 
@@ -132,6 +143,21 @@ class MenuBuilder
         }
         $this->tags[] = $structure->getUuid();
 
-        return $structure->getResourceLocator();
+        // Build URL
+        $scheme = $this->requestAnalyzer->getAttribute('scheme');
+        $host = $this->requestAnalyzer->getAttribute('host');
+        $locale = $item->getLocale();
+        $webspaceKey = $item->getWebspace();
+
+        $url = $this->webspaceManager->findUrlByResourceLocator(
+            $structure->getResourceLocator(),
+            $this->environment,
+            $locale,
+            $webspaceKey,
+            $host,
+            $scheme
+        );
+
+        return $url ?: $structure->getResourceLocator();
     }
 }

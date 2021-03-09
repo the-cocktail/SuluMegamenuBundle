@@ -35,6 +35,9 @@
             <argument type="service" id="TheCocktail\Bundle\MegaMenuBundle\Repository\MenuItemRepository"/>
             <argument type="service" id="sulu.content.mapper"/>
             <argument type="service" id="cache.app.taggable"/>
+            <argument type="service" id="sulu_core.webspace.webspace_manager"/>
+            <argument type="service" id="sulu_core.webspace.request_analyzer"/>
+            <argument>%kernel.environment%</argument>
             <argument type="service" id="fos_http_cache.http.symfony_response_tagger" on-invalid="ignore"/>
             <tag name="sulu.context" context="website"/>
         </service>
