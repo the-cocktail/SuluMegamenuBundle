@@ -200,7 +200,7 @@ class MegamenuController extends AbstractRestController implements ClassResource
             $data['resourceKey'] = $parent->getResourceKey();
         }
 
-        $data['locale'] = $request->query->get('locale');
+        $data['locale'] ??= $request->query->get('locale');
         if (!$data['webspace'] = $request->query->get('webspace')) {
             throw new WebspaceNotFoundException();
         }
