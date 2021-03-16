@@ -124,6 +124,12 @@ class MegamenuController extends AbstractRestController implements ClassResource
                     'parent' => false,
                     'webspace' => $webspaceKey,
                     'hasChildren' => $count ? true: false,
+                    "_permissions" => [
+                        "view" => false,
+                        "add" => true,
+                        "edit" => false,
+                        "delete" => false
+                    ],
                     '_embedded' => ['navigation' => $children ? $this->recursiveList($children): []]
                 ];
             }
